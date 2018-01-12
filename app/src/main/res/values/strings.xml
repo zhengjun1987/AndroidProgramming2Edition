@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">AndroidProgramming2Edition</string>
+    <string name="trueS">TRUE</string>
+    <string name="falseS">FALSE</string>
+    <string name="correct">Correct!</string>
+    <string name="incorrect">Incorrect!</string>
+    <string name="next">NEXT</string>
+    <string name="questions_ocean">The Pacific Ocean is larger than Atlantic Ocean.</string>
+    <string name="questions_mideast">The Suez Canal connects the Red Sea and the Indian Ocean.</string>
+    <string name="questions_africa">The source of the Nile River locates in the Egypt.</string>
+    <string name="questions_america">The Amazon River is the longest river in the Americas.</string>
+    <string name="questions_asia">Lake Baikal is the world\'s largest fresh water lake.</string>
+</resources>
