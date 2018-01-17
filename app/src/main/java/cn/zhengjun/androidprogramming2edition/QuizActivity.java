@@ -22,6 +22,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.out.println("QuizActivity.onCreate");
         setContentView(R.layout.activity_quiz);
         btn_true = (Button) findViewById(R.id.btn_true);
         btn_false = (Button) findViewById(R.id.btn_false);
@@ -63,8 +64,80 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void updateQuestion() {
-        System.out.println("mQuestionIndex = " + mQuestions.get(mQuestionIndex).toString());
         int questionTextResId = mQuestions.get(mQuestionIndex).getQuestionTextResId();
         tv_question_text.setText(questionTextResId);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        System.out.println("QuizActivity.onDestroy");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println("QuizActivity.onStart");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        System.out.println("QuizActivity.onStop");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        System.out.println("QuizActivity.onResume");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        System.out.println("QuizActivity.onPause");
+    }
 }
+////打开页面
+//01-17 15:13:49.616 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onCreate
+//01-17 15:13:49.741 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStart
+//01-17 15:13:49.756 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onResume
+//
+////单击菜单键
+//01-17 15:15:09.311 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onPause
+//01-17 15:15:09.848 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStop
+//
+////重新点开APP
+//01-17 15:16:31.535 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStart
+//01-17 15:16:31.536 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onResume
+//
+////退出APP
+//01-17 15:17:03.338 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onPause
+//01-17 15:17:03.910 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStop
+//01-17 15:17:03.910 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onDestroy
+
+
+
+
+
+
+////正常启动APP
+//01-17 15:24:29.186 24551-24551/? I/System.out: QuizActivity.onCreate
+//01-17 15:24:29.290 24551-24551/? I/System.out: QuizActivity.onStart
+//01-17 15:24:29.296 24551-24551/? I/System.out: QuizActivity.onResume
+//
+////旋转页面
+//01-17 15:25:13.612 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onPause
+//01-17 15:25:13.613 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStop
+//01-17 15:25:13.613 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onDestroy
+//01-17 15:25:13.655 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onCreate
+//01-17 15:25:13.692 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStart
+//01-17 15:25:13.694 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onResume
+//
+////再旋转回来
+//01-17 15:25:46.087 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onPause
+//01-17 15:25:46.088 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStop
+//01-17 15:25:46.088 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onDestroy
+//01-17 15:25:46.127 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onCreate
+//01-17 15:25:46.165 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStart
+//01-17 15:25:46.167 24551-24551/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onResume
