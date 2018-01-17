@@ -18,6 +18,7 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<Question> mQuestions;
     private int mQuestionIndex = 0;
     private Button btn_next;
+    private Button btn_previous;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +28,12 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         btn_true = (Button) findViewById(R.id.btn_true);
         btn_false = (Button) findViewById(R.id.btn_false);
         btn_next = (Button) findViewById(R.id.btn_next);
+        btn_previous = (Button) findViewById(R.id.btn_previous);
         tv_question_text = (TextView) findViewById(R.id.tv_question_text);
         btn_false.setOnClickListener(this);
         btn_true.setOnClickListener(this);
         btn_next.setOnClickListener(this);
+        btn_previous.setOnClickListener(this);
 
         mQuestions = new ArrayList<>();
         mQuestions.add(new Question(R.string.questions_ocean, true));
@@ -54,6 +57,13 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_next:
                 mQuestionIndex = (mQuestionIndex + 1) % mQuestions.size();
+                updateQuestion();
+                break;
+            case R.id.btn_previous:
+                if (mQuestionIndex==0) {
+                    mQuestionIndex=mQuestions.size();
+                }
+                mQuestionIndex = (mQuestionIndex - 1) % mQuestions.size();
                 updateQuestion();
                 break;
         }
