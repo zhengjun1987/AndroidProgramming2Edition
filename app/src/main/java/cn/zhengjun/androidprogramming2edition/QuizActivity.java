@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import cn.zhengjun.androidprogramming2edition.bean.Question;
 
 public class QuizActivity extends AppCompatActivity implements View.OnClickListener {
+    public static final String INDEX = "index";
     private Button btn_true;
     private Button btn_false;
     private TextView tv_question_text;
@@ -41,8 +42,31 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mQuestions.add(new Question(R.string.questions_africa, false));
         mQuestions.add(new Question(R.string.questions_america, true));
         mQuestions.add(new Question(R.string.questions_asia, true));
+
+        //提取状态数据
+        if (savedInstanceState != null) {
+            mQuestionIndex = savedInstanceState.getInt(INDEX,0);
+        }
         updateQuestion();
 
+    }
+
+    /*
+    * 存储状态数据
+    *
+    * 在Bundle中存储和恢复的数据类型只能是基本数据类型（primitive type）以及可以实
+    * 现Serializable或Parcelable接口的对象。在Bundle中保存定制类对象不是个好主意，因为
+    * 你取回的对象可能已经过时了。比较好的做法是，通过其他方式保存定制类对象，而在Bundle
+    * 中保存对象对应的基本数据类型的标示符。
+    *
+    * 和单击主屏幕键不一样的是，单击后退键后，无论是否启用Don’t keep activities选项，系统
+    * 总是会销毁当前activity。单击后退键相当于通知系统“用户不再需要使用当前的activity”。
+    * */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        System.out.println("QuizActivity.onSaveInstanceState  " + "outState = [" + outState + "]");
+        outState.putInt(INDEX,mQuestionIndex);
     }
 
     @Override
