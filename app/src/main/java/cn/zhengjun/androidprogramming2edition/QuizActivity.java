@@ -1,5 +1,6 @@
 package cn.zhengjun.androidprogramming2edition;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -7,33 +8,45 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import cn.zhengjun.androidprogramming2edition.bean.Question;
+import timber.log.Timber;
 
 public class QuizActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button btn_true;
-    private Button btn_false;
+    private static final String KEY_INDEX;
+    public static final int REQUEST_CODE = 237;
+
+    static {
+        KEY_INDEX = "key_index";
+    }
+
     private TextView tv_question_text;
     private ArrayList<Question> mQuestions;
     private int mQuestionIndex = 0;
-    private Button btn_next;
-    private Button btn_previous;
+    private boolean mIsCheater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        System.out.println("QuizActivity.onCreate");
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        }
+        System.out.println("System.getProperty(\"user.dir\") = " + System.getProperty("user.dir"));
+        Timber.tag(TAG).i(String.format("QuizActivity.onCreate()  savedInstanceState = [%s]", savedInstanceState));
         setContentView(R.layout.activity_quiz);
-        btn_true = (Button) findViewById(R.id.btn_true);
-        btn_false = (Button) findViewById(R.id.btn_false);
-        btn_next = (Button) findViewById(R.id.btn_next);
-        btn_previous = (Button) findViewById(R.id.btn_previous);
-        tv_question_text = (TextView) findViewById(R.id.tv_question_text);
-        btn_false.setOnClickListener(this);
-        btn_true.setOnClickListener(this);
-        btn_next.setOnClickListener(this);
-        btn_previous.setOnClickListener(this);
+        Button vBtn_true = findViewById(R.id.btn_true);
+        Button vBtn_false = findViewById(R.id.btn_false);
+        Button vBtn_next = findViewById(R.id.btn_next);
+        Button vBtn_previous = findViewById(R.id.btn_previous);
+        Button vButton_cheat = findViewById(R.id.cheat_button);
+        tv_question_text = findViewById(R.id.tv_question_text);
+        vBtn_false.setOnClickListener(this);
+        vBtn_true.setOnClickListener(this);
+        vBtn_next.setOnClickListener(this);
+        vBtn_previous.setOnClickListener(this);
+        vButton_cheat.setOnClickListener(this);
 
         mQuestions = new ArrayList<>();
         mQuestions.add(new Question(R.string.questions_ocean, true));
@@ -41,13 +54,19 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         mQuestions.add(new Question(R.string.questions_africa, false));
         mQuestions.add(new Question(R.string.questions_america, true));
         mQuestions.add(new Question(R.string.questions_asia, true));
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_INDEX)) {
+            mQuestionIndex = savedInstanceState.getInt(KEY_INDEX);
+        }
         updateQuestion();
 
     }
 
+    private static final String TAG = "QuizActivity";
+
     @Override
     public void onClick(View v) {
-        System.out.println("v = " + v.getId());
+        Timber.tag(TAG).i("QuizActivity.onClick()  " + "v = [" + v + "]");
         switch (v.getId()) {
             case R.id.btn_false:
                 checkAnswer(false);
@@ -57,11 +76,16 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_next:
                 mQuestionIndex = (mQuestionIndex + 1) % mQuestions.size();
+                mIsCheater = false;
                 updateQuestion();
                 break;
+            case R.id.cheat_button:
+                // 2018/4/12 start cheatActivity
+                startActivityForResult(CheatActivity.newIntent(this,mQuestions.get(mQuestionIndex).isAnswer()), REQUEST_CODE);
+                break;
             case R.id.btn_previous:
-                if (mQuestionIndex==0) {
-                    mQuestionIndex=mQuestions.size();
+                if (mQuestionIndex == 0) {
+                    mQuestionIndex = mQuestions.size();
                 }
                 mQuestionIndex = (mQuestionIndex - 1) % mQuestions.size();
                 updateQuestion();
@@ -69,11 +93,33 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Timber.tag(TAG).i("QuizActivity.onActivityResult()  " + "requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            mIsCheater = data != null && data.hasExtra(CheatActivity.EXTRA_ANSWER_SHOWN);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Timber.tag(TAG).i("QuizActivity.onSaveInstanceState()  " + "outState = [" + outState + "]");
+        outState.putInt(KEY_INDEX,mQuestionIndex);
+    }
+
     private void checkAnswer(boolean b) {
-        Toast.makeText(this, (b == mQuestions.get(mQuestionIndex).isAnswer()) ? R.string.correct : R.string.incorrect, Toast.LENGTH_SHORT).show();
+        if (!mIsCheater) {
+            Toast.makeText(this, (b == mQuestions.get(mQuestionIndex).isAnswer()) ? R.string.correct : R.string.incorrect, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "YOU BIG CHEATER!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateQuestion() {
+//        Log.d(TAG, "onClick: Updating question #"+mQuestionIndex,new Exception());//法记录并输出整个栈跟踪信息
+//        Timber.tag(TAG).d(new Exception(),"QuizActivity.updateQuestion()  " + "");
         int questionTextResId = mQuestions.get(mQuestionIndex).getQuestionTextResId();
         tv_question_text.setText(questionTextResId);
     }
@@ -81,31 +127,52 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        System.out.println("QuizActivity.onDestroy");
+        Timber.tag(TAG).i("QuizActivity.onDestroy()  " + "");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        System.out.println("QuizActivity.onStart");
+        Timber.tag(TAG).i("QuizActivity.onStart()  " + "");
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        System.out.println("QuizActivity.onStop");
+        Timber.tag(TAG).i("QuizActivity.onStop()  " + "");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        System.out.println("QuizActivity.onResume");
+        Timber.tag(TAG).i("QuizActivity.onResume()  " + "");
+        String vProperty = System.getProperty("user.dir");
+        File vFile = new File(vProperty);
+        System.out.println("System.getProperty(\"user.dir\") = " + vFile.getAbsolutePath());
+        traverseFile(vFile);
+    }
+
+    private void traverseFile(File pFile) {
+        for (File vFile : pFile.listFiles()) {
+            System.out.println(vFile.getName() + " : "+vFile.getAbsolutePath());
+        }
+
+//        if (!pFile.isDirectory()) {
+//            System.out.println(pFile.getName() + " : "+pFile.getAbsolutePath());
+//        } else {
+//            File[] vFiles = pFile.listFiles();
+//            if (vFiles != null && vFiles.length != 0) {
+//                for (File vFile : vFiles) {
+//                    traverseFile(vFile);
+//                }
+//            }
+//        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        System.out.println("QuizActivity.onPause");
+        Timber.tag(TAG).i("QuizActivity.onPause()  " + "");
     }
 }
 ////打开页面
@@ -125,10 +192,6 @@ public class QuizActivity extends AppCompatActivity implements View.OnClickListe
 //01-17 15:17:03.338 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onPause
 //01-17 15:17:03.910 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onStop
 //01-17 15:17:03.910 18257-18257/cn.zhengjun.androidprogramming2edition I/System.out: QuizActivity.onDestroy
-
-
-
-
 
 
 ////正常启动APP
